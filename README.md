@@ -194,6 +194,12 @@ python enhanced_password_checker.py -p "password" --no-zxcvbn
 # Skip Have I Been Pwned breach checking
 python enhanced_password_checker.py -p "password" --no-hibp
 
+# Export analysis to JSON
+python enhanced_password_checker.py -p "MyPassword123!" --export-json "analysis.json"
+
+# Export batch analysis to CSV
+python enhanced_password_checker.py -b passwords.txt --export-csv "results.csv"
+
 # Help
 python enhanced_password_checker.py --help
 ```
@@ -219,6 +225,90 @@ run.bat batch passwords.txt
 # All platforms
 python run.py batch passwords.txt
 ```
+
+#### Export Functionality
+
+##### JSON Export (Single Password Analysis)
+Export detailed analysis results to JSON format for documentation or integration:
+
+```bash
+# Export single password analysis to JSON
+python enhanced_password_checker.py -p "MyPassword123!" --export-json "analysis.json"
+
+# Include actual password in export (SECURITY RISK)
+python enhanced_password_checker.py -p "MyPassword123!" --export-json "analysis.json" --include-passwords
+```
+
+**JSON Output Structure:**
+```json
+{
+  "timestamp": "2025-06-13T23:04:17.032267",
+  "analysis_method": "zxcvbn + Enhanced Analysis",
+  "password_length": 16,
+  "character_composition": {
+    "lowercase_letters": true,
+    "uppercase_letters": true,
+    "numbers": true,
+    "special_characters": true,
+    "character_types_count": 4
+  },
+  "technical_metrics": {
+    "entropy_bits": 104.87,
+    "unique_characters": 14,
+    "uniqueness_ratio": 0.875
+  },
+  "strength_assessment": {
+    "score": 95,
+    "max_score": 100,
+    "strength_level": "Strong",
+    "percentage": 95
+  },
+  "security_issues": {
+    "issues_found": 2,
+    "issue_list": ["Contains sequential characters", "Contains dictionary word: 'password'"]
+  },
+  "improvement_suggestions": [],
+  "breach_check": {
+    "is_compromised": true,
+    "breach_count": 1998,
+    "risk_level": "Very High Risk",
+    "recommendation": "This password is extremely common in breaches..."
+  }
+}
+```
+
+##### CSV Export (Batch Analysis)
+Export batch analysis results to CSV format for spreadsheet analysis:
+
+```bash
+# Batch analysis with CSV export
+python enhanced_password_checker.py -b passwords.txt --export-csv "batch_results.csv"
+
+# Include passwords in CSV (SECURITY RISK)
+python enhanced_password_checker.py -b passwords.txt --export-csv "batch_results.csv" --include-passwords
+```
+
+**CSV Output Columns:**
+- `timestamp` - Analysis timestamp
+- `password_length` - Password length
+- `score` - Strength score (0-100)
+- `strength_level` - Strength category (Very Weak to Very Strong)
+- `lowercase_letters`, `uppercase_letters`, `numbers`, `special_characters` - Character type presence
+- `character_types_count` - Number of different character types
+- `entropy_bits` - Calculated entropy
+- `unique_characters` - Number of unique characters
+- `uniqueness_ratio` - Ratio of unique to total characters
+- `issues_found` - Number of security issues detected
+- `issue_list` - Semicolon-separated list of issues
+- `improvement_suggestions` - Semicolon-separated improvement suggestions
+- `breach_status` - "safe" or "compromised"
+- `breach_count` - Number of data breaches (if compromised)
+- `analysis_method` - Algorithm used for analysis
+
+##### GUI Export
+The GUI version also supports export functionality:
+- **JSON Export**: Click "Export JSON" button after analyzing a password
+- **CSV Export**: Use "Export to CSV" button in batch analysis results window
 
 ## 📊 Sample Output
 
@@ -483,7 +573,7 @@ chmod +x password_checker.py
 - [x] GUI interface using tkinter or PyQt ✅
 - [x] Password generation with customizable criteria ✅ (Available in GUI)
 - [x] Integration with Have I Been Pwned API ✅ (Checks password breach status)
-- [ ] Export results to JSON/CSV format
+- [x] Export results to JSON/CSV format ✅ (Individual and batch analysis export)
 - [ ] Docker containerization
 - [ ] Web interface version
 - [ ] Multi-language support

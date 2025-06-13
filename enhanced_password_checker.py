@@ -14,6 +14,9 @@ import math
 import argparse
 import sys
 import os
+import json
+import csv
+from datetime import datetime
 from typing import Dict, List, Tuple, Optional
 from colorama import Fore, Style, init
 import importlib.util
@@ -630,7 +633,175 @@ class PasswordStrengthChecker:
         print(f"  - Never reuse passwords across multiple accounts")
         print(f"  - Update passwords regularly, especially for sensitive accounts")
         print(f"  - Store passwords securely using a password manager")
+    
+    def get_password_analysis_data(self, password: str, include_password: bool = False) -> Dict:
+        """
+        Analyze password and return structured data for export
+        
+        Args:
+            password: Password to analyze
+            include_password: Whether to include the actual password in results (security consideration)
+            
+        Returns:
+            Dictionary containing all analysis results
+        """
+        if not password:
+            return {"error": "Password cannot be empty"}
+        
+        # Use zxcvbn if available, otherwise use built-in algorithm
+        if self.use_zxcvbn:
+            score, strength, suggestions, zxcvbn_result = self.calculate_score_zxcvbn(password)
+        else:
+            score, strength, suggestions = self.calculate_score_builtin(password)
+            zxcvbn_result = None
+        
+        # Get basic analysis data
+        char_types = self.check_character_types(password)
+        entropy = self.calculate_entropy(password)
+        issues = self.check_common_patterns(password)
+        
+        # Analyze HIBP if available
+        hibp_result = None
+        if self.hibp_checker:
+            try:
+                hibp_result = self.hibp_checker.get_breach_info(password)
+            except Exception as e:
+                hibp_result = {"error": f"HIBP check failed: {str(e)}"}
+        
+        # Build structured result
+        result = {
+            "timestamp": datetime.now().isoformat(),
+            "analysis_method": "zxcvbn + Enhanced Analysis" if self.use_zxcvbn else "Built-in Algorithm",
+            "password_length": len(password),
+            "character_composition": {
+                "lowercase_letters": char_types['lowercase'],
+                "uppercase_letters": char_types['uppercase'],
+                "numbers": char_types['digits'],
+                "special_characters": char_types['special'],
+                "character_types_count": sum(char_types.values())
+            },
+            "technical_metrics": {
+                "entropy_bits": round(entropy, 2),
+                "unique_characters": len(set(password)),
+                "uniqueness_ratio": round(len(set(password)) / len(password), 3) if len(password) > 0 else 0
+            },
+            "strength_assessment": {
+                "score": score,
+                "max_score": 100,
+                "strength_level": strength,
+                "percentage": score
+            },
+            "security_issues": {
+                "issues_found": len(issues),
+                "issue_list": issues
+            },
+            "improvement_suggestions": suggestions,
+            "breach_check": hibp_result if hibp_result else {"status": "unavailable", "reason": "HIBP integration not available"}
+        }
+        
+        # Add zxcvbn specific data if available
+        if zxcvbn_result:
+            result["zxcvbn_analysis"] = {
+                "score": zxcvbn_result['score'],
+                "guesses": zxcvbn_result['guesses'],
+                "crack_times": zxcvbn_result.get('crack_times_seconds', {}),
+                "feedback": {
+                    "warning": zxcvbn_result['feedback'].get('warning', ''),
+                    "suggestions": zxcvbn_result['feedback'].get('suggestions', [])
+                }
+            }
+            if 'entropy' in zxcvbn_result:
+                result["technical_metrics"]["zxcvbn_entropy_bits"] = round(zxcvbn_result['entropy'], 2)
+        
+        # Optionally include password (security consideration)
+        if include_password:
+            result["password"] = password
+        else:
+            result["password_hash"] = hash(password)  # For identification without exposing password
+        
+        return result
 
+    def export_analysis_to_json(self, analysis_data: Dict, filename: str) -> bool:
+        """
+        Export analysis data to JSON format
+        
+        Args:
+            analysis_data: Analysis result from get_password_analysis_data
+            filename: Output filename
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            # Convert any non-serializable objects to strings
+            def json_serializer(obj):
+                from decimal import Decimal
+                if isinstance(obj, Decimal):
+                    return float(obj)
+                raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
+            
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(analysis_data, f, indent=2, ensure_ascii=False, default=json_serializer)
+            return True
+        except Exception as e:
+            print(f"{Fore.RED}Error exporting to JSON: {str(e)}{Style.RESET_ALL}")
+            return False
+
+    def export_batch_to_csv(self, batch_results: List[Dict], filename: str) -> bool:
+        """
+        Export batch analysis results to CSV format
+        
+        Args:
+            batch_results: List of analysis results
+            filename: Output filename
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        if not batch_results:
+            print(f"{Fore.RED}No results to export{Style.RESET_ALL}")
+            return False
+        
+        try:
+            with open(filename, 'w', newline='', encoding='utf-8') as csvfile:
+                # Define CSV columns
+                fieldnames = [
+                    'timestamp', 'password_length', 'score', 'strength_level',
+                    'lowercase_letters', 'uppercase_letters', 'numbers', 'special_characters',
+                    'character_types_count', 'entropy_bits', 'unique_characters',
+                    'uniqueness_ratio', 'issues_found', 'issue_list', 'improvement_suggestions',
+                    'breach_status', 'breach_count', 'analysis_method'
+                ]
+                
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+                
+                for result in batch_results:
+                    # Flatten the nested structure for CSV
+                    row = {
+                        'timestamp': result.get('timestamp', ''),
+                        'password_length': result.get('password_length', 0),
+                        'score': result.get('strength_assessment', {}).get('score', 0),
+                        'strength_level': result.get('strength_assessment', {}).get('strength_level', ''),
+                        'lowercase_letters': result.get('character_composition', {}).get('lowercase_letters', False),
+                        'uppercase_letters': result.get('character_composition', {}).get('uppercase_letters', False),
+                        'numbers': result.get('character_composition', {}).get('numbers', False),
+                        'special_characters': result.get('character_composition', {}).get('special_characters', False),
+                        'character_types_count': result.get('character_composition', {}).get('character_types_count', 0),
+                        'entropy_bits': result.get('technical_metrics', {}).get('entropy_bits', 0),
+                        'unique_characters': result.get('technical_metrics', {}).get('unique_characters', 0),
+                        'uniqueness_ratio': result.get('technical_metrics', {}).get('uniqueness_ratio', 0),
+                        'issues_found': result.get('security_issues', {}).get('issues_found', 0),
+                        'issue_list': '; '.join(result.get('security_issues', {}).get('issue_list', [])),
+                        'improvement_suggestions': '; '.join(result.get('improvement_suggestions', [])),
+                        'breach_status': 'compromised' if result.get('breach_check', {}).get('is_compromised') else 'safe',
+                        'breach_count': result.get('breach_check', {}).get('breach_count', 0),                        'analysis_method': result.get('analysis_method', '')
+                    }
+                    writer.writerow(row)
+            return True
+        except Exception as e:
+            print(f"{Fore.RED}Error exporting to CSV: {str(e)}{Style.RESET_ALL}")
+            return False
 
 def main():
     """Main function to run the password strength checker"""
@@ -647,7 +818,8 @@ Examples:
 Features:
   • Integrates with zxcvbn library for advanced analysis
   • Comprehensive pattern detection
-  • Multiple attack scenario time estimations  • Color-coded output for better visualization
+  • Multiple attack scenario time estimations
+  • Color-coded output for better visualization
   • Detailed security recommendations
         """
     )
@@ -672,14 +844,31 @@ Features:
     
     parser.add_argument(
         '--no-zxcvbn',
-        action='store_true',
-        help='Force use of built-in algorithm instead of zxcvbn'
+        action='store_true',        help='Force use of built-in algorithm instead of zxcvbn'
     )
     
     parser.add_argument(
         '--no-hibp',
         action='store_true',
         help='Skip Have I Been Pwned breach checking'
+    )
+    
+    parser.add_argument(
+        '--export-json',
+        type=str,
+        help='Export analysis results to JSON file (single password analysis only)'
+    )
+    
+    parser.add_argument(
+        '--export-csv',
+        type=str,
+        help='Export batch analysis results to CSV file (batch mode only)'
+    )
+    
+    parser.add_argument(
+        '--include-passwords',
+        action='store_true',
+        help='Include actual passwords in export (SECURITY RISK - use with caution)'
     )
     
     args = parser.parse_args()
@@ -694,8 +883,7 @@ Features:
     # Disable HIBP checking if requested
     if args.no_hibp:
         checker.hibp_checker = None
-    
-    # Display header
+      # Display header
     print(f"\n{Fore.CYAN + Style.BRIGHT}[*] ENHANCED PASSWORD STRENGTH CHECKER [*]{Style.RESET_ALL}")
     print(f"{Fore.CYAN}Advanced password security analysis with comprehensive checks{Style.RESET_ALL}")
     
@@ -708,12 +896,30 @@ Features:
                 
                 print(f"\n{Fore.YELLOW}Batch Mode - Analyzing {len(passwords)} passwords{Style.RESET_ALL}")
                 
+                # Collect results for export if requested
+                batch_results = []
+                
                 for i, password in enumerate(passwords, 1):
                     print(f"\n{Fore.CYAN}--- Password {i}/{len(passwords)} ---{Style.RESET_ALL}")
+                    
+                    # Get analysis data for export
+                    if args.export_csv:
+                        analysis_data = checker.get_password_analysis_data(password, args.include_passwords)
+                        batch_results.append(analysis_data)
+                    
+                    # Display analysis
                     checker.analyze_password(password)
                     
-                    if i < len(passwords):
+                    if i < len(passwords) and not args.export_csv:
                         input(f"\n{Fore.YELLOW}Press Enter to continue to next password...{Style.RESET_ALL}")
+                
+                # Export to CSV if requested
+                if args.export_csv and batch_results:
+                    print(f"\n{Fore.CYAN}Exporting results to CSV...{Style.RESET_ALL}")
+                    if checker.export_batch_to_csv(batch_results, args.export_csv):
+                        print(f"{Fore.GREEN}✓ Results exported to {args.export_csv}{Style.RESET_ALL}")
+                    else:
+                        print(f"{Fore.RED}✗ Failed to export results{Style.RESET_ALL}")
                         
             except FileNotFoundError:
                 print(f"{Fore.RED}Error: File '{args.batch}' not found{Style.RESET_ALL}")
@@ -725,6 +931,15 @@ Features:
         elif args.password:
             # Analyze provided password
             checker.analyze_password(args.password)
+            
+            # Export to JSON if requested
+            if args.export_json:
+                print(f"\n{Fore.CYAN}Exporting results to JSON...{Style.RESET_ALL}")
+                analysis_data = checker.get_password_analysis_data(args.password, args.include_passwords)
+                if checker.export_analysis_to_json(analysis_data, args.export_json):
+                    print(f"{Fore.GREEN}✓ Results exported to {args.export_json}{Style.RESET_ALL}")
+                else:
+                    print(f"{Fore.RED}✗ Failed to export results{Style.RESET_ALL}")
             
         elif args.interactive or len(sys.argv) == 1:
             # Interactive mode

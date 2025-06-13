@@ -99,8 +99,7 @@ class PasswordCheckerGUI:
                                          variable=self.show_password_var,
                                          command=self.toggle_password_visibility)
         self.show_button.grid(row=0, column=2)
-        
-        # Control buttons
+          # Control buttons
         button_frame = ttk.Frame(input_frame)
         button_frame.grid(row=1, column=0, columnspan=3, pady=(10, 0))
         
@@ -111,7 +110,9 @@ class PasswordCheckerGUI:
         ttk.Button(button_frame, text="Clear", 
                   command=self.clear_analysis).pack(side=tk.LEFT, padx=(0, 10))
         ttk.Button(button_frame, text="Batch Analysis", 
-                  command=self.batch_analysis).pack(side=tk.LEFT)
+                  command=self.batch_analysis).pack(side=tk.LEFT, padx=(0, 10))
+        ttk.Button(button_frame, text="Export JSON", 
+                  command=self.export_json).pack(side=tk.LEFT)
         
         # Results section
         results_frame = ttk.LabelFrame(main_frame, text="Analysis Results", padding="10")
@@ -684,8 +685,7 @@ class PasswordCheckerGUI:
         tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         v_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         h_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
-        
-        # Progress bar for batch processing
+          # Progress bar for batch processing
         progress_frame = ttk.Frame(main_frame)
         progress_frame.pack(fill=tk.X, pady=(10, 0))
         
@@ -697,8 +697,13 @@ class PasswordCheckerGUI:
         status_label.pack()
         
         def process_batch():
+            batch_results = []  # Store analysis data for export
             for i, password in enumerate(passwords):
                 try:
+                    # Get detailed analysis data for export
+                    analysis_data = self.checker.get_password_analysis_data(password, include_password=False)
+                    batch_results.append(analysis_data)
+                    
                     if hasattr(self.checker, 'calculate_score_builtin'):
                         score, strength, _ = self.checker.calculate_score_builtin(password)
                     else:
@@ -721,6 +726,15 @@ class PasswordCheckerGUI:
                     tree.insert('', tk.END, values=(password[:20], "Error", "Error", str(e)[:30]))
                     
             status_label.config(text="Processing complete!")
+            
+            # Add export button after processing is complete
+            export_frame = ttk.Frame(main_frame)
+            export_frame.pack(fill=tk.X, pady=(10, 0))
+            
+            ttk.Button(export_frame, text="Export to CSV", 
+                      command=lambda: self.export_csv_batch(batch_results)).pack(side=tk.LEFT, padx=(0, 10))
+            ttk.Button(export_frame, text="Close", 
+                      command=dialog.destroy).pack(side=tk.LEFT)
             
         # Start processing
         thread = threading.Thread(target=process_batch)
@@ -748,6 +762,56 @@ class PasswordCheckerGUI:
             except Exception as e:
                 messagebox.showerror("Export Error", f"Error exporting results: {str(e)}")
                 
+    def export_json(self):
+        """Export current password analysis to JSON file"""
+        password = self.password_var.get()
+        if not password:
+            messagebox.showwarning("No Password", "Please enter a password to analyze before exporting.")
+            return
+        
+        # Get filename from user
+        filename = filedialog.asksaveasfilename(
+            title="Export Analysis to JSON",
+            defaultextension=".json",
+            filetypes=[("JSON files", "*.json"), ("All files", "*.*")]
+        )
+        
+        if filename:
+            try:
+                # Get analysis data
+                analysis_data = self.checker.get_password_analysis_data(password, include_password=False)
+                
+                # Export to JSON
+                if self.checker.export_analysis_to_json(analysis_data, filename):
+                    messagebox.showinfo("Export Successful", f"Analysis exported to:\n{filename}")
+                else:
+                    messagebox.showerror("Export Failed", "Failed to export analysis to JSON file.")
+            except Exception as e:
+                messagebox.showerror("Export Error", f"Error exporting analysis:\n{str(e)}")
+
+    def export_csv_batch(self, batch_results, default_filename="batch_analysis.csv"):
+        """Export batch analysis results to CSV file"""
+        # Get filename from user
+        filename = filedialog.asksaveasfilename(
+            title="Export Batch Analysis to CSV",
+            defaultextension=".csv",
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+            initialvalue=default_filename
+        )
+        
+        if filename:
+            try:
+                if self.checker.export_batch_to_csv(batch_results, filename):
+                    messagebox.showinfo("Export Successful", f"Batch analysis exported to:\n{filename}")
+                    return True
+                else:
+                    messagebox.showerror("Export Failed", "Failed to export batch analysis to CSV file.")
+                    return False
+            except Exception as e:
+                messagebox.showerror("Export Error", f"Error exporting batch analysis:\n{str(e)}")
+                return False
+        return False
+        
     def clear_analysis(self):
         """Clear all analysis results"""
         self.password_var.set("")
