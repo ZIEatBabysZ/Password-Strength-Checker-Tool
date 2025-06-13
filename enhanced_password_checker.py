@@ -28,6 +28,13 @@ try:
 except ImportError:
     ZXCVBN_AVAILABLE = False
 
+# Try to import Have I Been Pwned checker
+try:
+    from hibp_checker import HaveIBeenPwnedChecker
+    HIBP_AVAILABLE = True
+except ImportError:
+    HIBP_AVAILABLE = False
+
 class PasswordStrengthChecker:
     """Enhanced password strength checker with zxcvbn integration"""
     
@@ -36,10 +43,15 @@ class PasswordStrengthChecker:
         self.common_passwords = self._load_common_passwords()
         self.dictionary_words = self._load_dictionary_words()
         self.use_zxcvbn = ZXCVBN_AVAILABLE
+        self.hibp_checker = HaveIBeenPwnedChecker() if HIBP_AVAILABLE else None
         
         if not self.use_zxcvbn:
             print(f"{Fore.YELLOW}Note: zxcvbn library not found. Using built-in scoring algorithm.{Style.RESET_ALL}")
             print(f"{Fore.YELLOW}Install it with: pip install zxcvbn{Style.RESET_ALL}\n")
+        
+        if not HIBP_AVAILABLE:
+            print(f"{Fore.YELLOW}Note: Have I Been Pwned integration not available.{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}Install requests with: pip install requests{Style.RESET_ALL}\n")
     
     def _load_common_passwords(self) -> set:
         """Load common passwords from file or use built-in list"""
@@ -502,14 +514,32 @@ class PasswordStrengthChecker:
             print(f"\n{Fore.YELLOW}[!] Security Issues Detected:{Style.RESET_ALL}")
             for i, issue in enumerate(issues, 1):
                 print(f"  {i}. {issue}")
-        
-        # zxcvbn specific patterns
+          # zxcvbn specific patterns
         if zxcvbn_result and zxcvbn_result.get('sequence'):
             print(f"\n{Fore.YELLOW}[PATTERN] Pattern Analysis (zxcvbn):{Style.RESET_ALL}")
             for match in zxcvbn_result['sequence']:
                 pattern_type = match.get('pattern', 'unknown')
                 token = match.get('token', '')
                 print(f"  - {pattern_type.title()}: '{token}'")
+        
+        # Have I Been Pwned check
+        if self.hibp_checker:
+            print(f"\n{Fore.CYAN}[HIBP] Have I Been Pwned Check:{Style.RESET_ALL}")
+            try:
+                hibp_result = self.hibp_checker.get_breach_info(password)
+                if hibp_result['is_compromised']:
+                    print(f"  - {Fore.RED}⚠️  PASSWORD COMPROMISED!{Style.RESET_ALL}")
+                    print(f"  - Found in {hibp_result['breach_count']:,} data breaches")
+                    print(f"  - Risk Level: {Fore.RED}{hibp_result['risk_level']}{Style.RESET_ALL}")
+                    print(f"  - {Fore.YELLOW}{hibp_result['recommendation']}{Style.RESET_ALL}")
+                else:
+                    print(f"  - {Fore.GREEN}✓ Password not found in known data breaches{Style.RESET_ALL}")
+                    print(f"  - {hibp_result['recommendation']}")
+            except Exception as e:
+                print(f"  - {Fore.YELLOW}Unable to check breaches: {str(e)}{Style.RESET_ALL}")
+        else:
+            print(f"\n{Fore.YELLOW}[HIBP] Have I Been Pwned check unavailable{Style.RESET_ALL}")
+            print(f"  - Install requests library for breach checking: pip install requests")
         
         # Suggestions
         if suggestions:
@@ -617,8 +647,7 @@ Examples:
 Features:
   • Integrates with zxcvbn library for advanced analysis
   • Comprehensive pattern detection
-  • Multiple attack scenario time estimations
-  • Color-coded output for better visualization
+  • Multiple attack scenario time estimations  • Color-coded output for better visualization
   • Detailed security recommendations
         """
     )
@@ -647,6 +676,12 @@ Features:
         help='Force use of built-in algorithm instead of zxcvbn'
     )
     
+    parser.add_argument(
+        '--no-hibp',
+        action='store_true',
+        help='Skip Have I Been Pwned breach checking'
+    )
+    
     args = parser.parse_args()
     
     # Initialize the checker
@@ -655,6 +690,10 @@ Features:
     # Force built-in algorithm if requested
     if args.no_zxcvbn:
         checker.use_zxcvbn = False
+    
+    # Disable HIBP checking if requested
+    if args.no_hibp:
+        checker.hibp_checker = None
     
     # Display header
     print(f"\n{Fore.CYAN + Style.BRIGHT}[*] ENHANCED PASSWORD STRENGTH CHECKER [*]{Style.RESET_ALL}")

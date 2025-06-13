@@ -330,14 +330,35 @@ class PasswordCheckerGUI:
             for i, issue in enumerate(issues, 1):
                 result.append(f"  {i}. {issue}")
             result.append("")
-            
-        # zxcvbn specific patterns
+              # zxcvbn specific patterns
         if zxcvbn_result and zxcvbn_result.get('sequence'):
             result.append("🔍 Pattern Analysis (zxcvbn):")
             for match in zxcvbn_result['sequence']:
                 pattern_type = match.get('pattern', 'unknown')
                 token = match.get('token', '')
                 result.append(f"  • {pattern_type.title()}: '{token}'")
+            result.append("")
+        
+        # Have I Been Pwned check
+        if hasattr(self.checker, 'hibp_checker') and self.checker.hibp_checker:
+            result.append("🛡️  Have I Been Pwned Check:")
+            try:
+                hibp_result = self.checker.hibp_checker.get_breach_info(password)
+                if hibp_result['is_compromised']:
+                    result.append(f"  ⚠️  PASSWORD COMPROMISED!")
+                    result.append(f"  • Found in {hibp_result['breach_count']:,} data breaches")
+                    result.append(f"  • Risk Level: {hibp_result['risk_level']}")
+                    result.append(f"  • {hibp_result['recommendation']}")
+                else:
+                    result.append(f"  ✅ Password not found in known data breaches")
+                    result.append(f"  • {hibp_result['recommendation']}")
+            except Exception as e:
+                result.append(f"  ⚠️  Unable to check breaches: {str(e)}")
+            result.append("")
+        else:
+            result.append("🛡️  Have I Been Pwned Check:")
+            result.append("  ⚠️  Breach checking unavailable")
+            result.append("  • Install requests library for breach checking")
             result.append("")
             
         # Time to crack estimation

@@ -71,6 +71,7 @@ pip3 install -r requirements.txt
 **Required packages:**
 - `colorama>=0.4.4` - Cross-platform color output
 - `zxcvbn>=4.4.28` - Advanced password analysis (optional but recommended)
+- `requests>=2.25.0` - HTTP library for Have I Been Pwned API integration (optional but recommended)
 
 ## 📖 Usage
 
@@ -165,6 +166,7 @@ The GUI version provides:
 - **User-Friendly Interface**: Intuitive design with menus and dialogs
 - **Password Visibility Toggle**: Show/hide password option
 - **Security Tips**: Built-in password security guidance
+- **Have I Been Pwned Integration**: Checks if passwords have been compromised in data breaches
 
 #### Basic Version (`password_checker.py`)
 ```bash
@@ -188,6 +190,9 @@ python enhanced_password_checker.py -b passwords.txt
 
 # Force built-in algorithm (skip zxcvbn)
 python enhanced_password_checker.py -p "password" --no-zxcvbn
+
+# Skip Have I Been Pwned breach checking
+python enhanced_password_checker.py -p "password" --no-hibp
 
 # Help
 python enhanced_password_checker.py --help
@@ -350,6 +355,7 @@ PasswordSCT/
 ├── password_checker.py          # Basic version with built-in algorithm
 ├── enhanced_password_checker.py # Enhanced version with zxcvbn integration
 ├── password_checker_gui.py      # GUI version with tkinter interface
+├── hibp_checker.py              # Have I Been Pwned API integration module
 ├── run.py                      # Cross-platform Python launcher (all platforms)
 ├── run.bat                     # Windows batch file launcher
 ├── run.ps1                     # Windows PowerShell script
@@ -476,7 +482,7 @@ chmod +x password_checker.py
 
 - [x] GUI interface using tkinter or PyQt ✅
 - [x] Password generation with customizable criteria ✅ (Available in GUI)
-- [ ] Integration with Have I Been Pwned API
+- [x] Integration with Have I Been Pwned API ✅ (Checks password breach status)
 - [ ] Export results to JSON/CSV format
 - [ ] Docker containerization
 - [ ] Web interface version
