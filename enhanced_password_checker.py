@@ -24,6 +24,15 @@ import importlib.util
 # Initialize colorama for cross-platform color support
 init(autoreset=True)
 
+# Import internationalization support
+try:
+    from i18n_manager import i18n, _
+except ImportError:
+    # Fallback if i18n not available
+    print("Warning: Internationalization not available. Using English only.")
+    def _(text): return text
+    i18n = None
+
 # Try to import zxcvbn
 try:
     from zxcvbn import zxcvbn
@@ -49,12 +58,12 @@ class PasswordStrengthChecker:
         self.hibp_checker = HaveIBeenPwnedChecker() if HIBP_AVAILABLE else None
         
         if not self.use_zxcvbn:
-            print(f"{Fore.YELLOW}Note: zxcvbn library not found. Using built-in scoring algorithm.{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}Install it with: pip install zxcvbn{Style.RESET_ALL}\n")
+            print(f"{Fore.YELLOW}{_('Note: zxcvbn library not found. Using built-in scoring algorithm.')}{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}{_('Install it with: pip install zxcvbn')}{Style.RESET_ALL}\n")
         
         if not HIBP_AVAILABLE:
-            print(f"{Fore.YELLOW}Note: Have I Been Pwned integration not available.{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}Install requests with: pip install requests{Style.RESET_ALL}\n")
+            print(f"{Fore.YELLOW}{_('Note: Have I Been Pwned integration not available.')}{Style.RESET_ALL}")
+            print(f"{Fore.YELLOW}{_('Install requests with: pip install requests')}{Style.RESET_ALL}\n")
     
     def _load_common_passwords(self) -> set:
         """Load common passwords from file or use built-in list"""
@@ -283,8 +292,7 @@ class PasswordStrengthChecker:
         for word in self.dictionary_words:
             if len(word) > 3 and word in password_lower:
                 issues.append(f"Contains dictionary word: '{word}'")
-        
-        # Check against common passwords
+          # Check against common passwords
         if password_lower in self.common_passwords:
             issues.append("Password is in common passwords list")
         
@@ -309,10 +317,10 @@ class PasswordStrengthChecker:
             score += 10
         else:
             score += 5
-            suggestions.append("Use at least 8 characters (12+ recommended)")
+            suggestions.append(_("Use at least 8 characters"))
         
         if length < 8:
-            suggestions.append("Increase password length for better security")
+            suggestions.append(_("Increase password length for better security"))
         
         # Character type diversity (0-25 points)
         char_types = self.check_character_types(password)
@@ -331,13 +339,13 @@ class PasswordStrengthChecker:
         
         # Add suggestions for missing character types
         if not char_types['lowercase']:
-            suggestions.append("Add lowercase letters")
+            suggestions.append(_("Add lowercase letters"))
         if not char_types['uppercase']:
-            suggestions.append("Add uppercase letters")
+            suggestions.append(_("Add uppercase letters"))
         if not char_types['digits']:
-            suggestions.append("Add numbers")
+            suggestions.append(_("Add numbers"))
         if not char_types['special']:
-            suggestions.append("Add special characters (!@#$%^&*)")
+            suggestions.append(_("Add special characters"))
         
         # Entropy scoring (0-25 points)
         entropy = self.calculate_entropy(password)
@@ -360,15 +368,15 @@ class PasswordStrengthChecker:
         # Add issues as suggestions
         for issue in issues:
             if "dictionary word" in issue:
-                suggestions.append("Avoid using dictionary words")
+                suggestions.append(_("Avoid using dictionary words"))
             elif "common passwords" in issue:
-                suggestions.append("This password is too common - choose a unique one")
+                suggestions.append(_("This password is too common - choose a unique one"))
             elif "repeated characters" in issue:
-                suggestions.append("Avoid repeating the same character")
+                suggestions.append(_("Avoid repeating the same character"))
             elif "sequential characters" in issue:
-                suggestions.append("Avoid sequential characters (123, abc)")
+                suggestions.append(_("Avoid sequential characters (123, abc)"))
             elif "keyboard patterns" in issue:
-                suggestions.append("Avoid keyboard patterns (qwerty, asdf)")
+                suggestions.append(_("Avoid keyboard patterns (qwerty, asdf)"))
         
         # Uniqueness bonus (0-20 points)
         unique_chars = len(set(password))
@@ -381,22 +389,22 @@ class PasswordStrengthChecker:
             score += 10
         else:
             score += 5
-            suggestions.append("Use more unique characters")
+            suggestions.append(_("Use more unique characters"))
         
         # Ensure score is between 0 and 100
         score = max(0, min(100, score))
         
         # Determine strength label
         if score >= 80:
-            strength = "Very Strong"
+            strength = _("Very Strong")
         elif score >= 60:
-            strength = "Strong"
+            strength = _("Strong")
         elif score >= 40:
-            strength = "Medium"
+            strength = _("Medium")
         elif score >= 20:
-            strength = "Weak"
+            strength = _("Weak")
         else:
-            strength = "Very Weak"
+            strength = _("Very Weak")
         
         return score, strength, suggestions
     
@@ -413,45 +421,42 @@ class PasswordStrengthChecker:
         entropy_bonus = min(result.get('entropy', 0) / 4, 15)
         
         final_score = min(100, base_score + length_bonus + entropy_bonus)
-        
-        # Determine strength label
-        strength_mapping = {0: "Very Weak", 1: "Weak", 2: "Medium", 3: "Strong", 4: "Very Strong"}
-        strength = strength_mapping.get(zxcvbn_score, "Very Weak")
-        
-        # Generate suggestions
+          # Determine strength label
+        strength_mapping = {0: _("Very Weak"), 1: _("Weak"), 2: _("Medium"), 3: _("Strong"), 4: _("Very Strong")}
+        strength = strength_mapping.get(zxcvbn_score, _("Very Weak"))
+          # Generate suggestions
         suggestions = []
         if result['feedback']['warning']:
             suggestions.append(result['feedback']['warning'])
-        
         for suggestion in result['feedback']['suggestions']:
             suggestions.append(suggestion)
         
         # Add our own suggestions
         char_types = self.check_character_types(password)
         if not char_types['uppercase']:
-            suggestions.append("Add uppercase letters")
+            suggestions.append(_("Add uppercase letters"))
         if not char_types['lowercase']:
-            suggestions.append("Add lowercase letters")
+            suggestions.append(_("Add lowercase letters"))
         if not char_types['digits']:
-            suggestions.append("Add numbers")
+            suggestions.append(_("Add numbers"))
         if not char_types['special']:
-            suggestions.append("Add special characters")
+            suggestions.append(_("Add special characters"))
         
         if len(password) < 8:
-            suggestions.append("Use at least 8 characters")
+            suggestions.append(_("Use at least 8 characters"))
         if len(password) < 12:
-            suggestions.append("Consider using 12+ characters for better security")
+            suggestions.append(_("Consider using 12+ characters for better security"))
         
         return int(final_score), strength, suggestions, result
     
     def get_color_for_strength(self, strength: str) -> str:
         """Get color code for password strength"""
         colors = {
-            "Very Strong": Fore.GREEN + Style.BRIGHT,
-            "Strong": Fore.GREEN,
-            "Medium": Fore.YELLOW,
-            "Weak": Fore.RED,
-            "Very Weak": Fore.RED + Style.BRIGHT
+            _("Very Strong"): Fore.GREEN + Style.BRIGHT,
+            _("Strong"): Fore.GREEN,
+            _("Medium"): Fore.YELLOW,
+            _("Weak"): Fore.RED,
+            _("Very Weak"): Fore.RED + Style.BRIGHT
         }
         return colors.get(strength, Fore.WHITE)
     
@@ -460,8 +465,7 @@ class PasswordStrengthChecker:
         if not password:
             print(f"{Fore.RED}Error: Password cannot be empty{Style.RESET_ALL}")
             return
-        
-        # Use zxcvbn if available, otherwise use built-in algorithm
+          # Use zxcvbn if available, otherwise use built-in algorithm
         if self.use_zxcvbn:
             score, strength, suggestions, zxcvbn_result = self.calculate_score_zxcvbn(password)
         else:
@@ -469,41 +473,40 @@ class PasswordStrengthChecker:
             zxcvbn_result = None
         
         color = self.get_color_for_strength(strength)
-        
         print("\n" + "="*70)
-        print(f"{Fore.CYAN + Style.BRIGHT}[*] PASSWORD STRENGTH ANALYSIS [*]{Style.RESET_ALL}")
+        print(f"{Fore.CYAN + Style.BRIGHT}[*] {_('PASSWORD STRENGTH ANALYSIS')} [*]{Style.RESET_ALL}")
         print("="*70)
         
         # Algorithm info
-        algorithm = "zxcvbn + Enhanced Analysis" if self.use_zxcvbn else "Built-in Algorithm"
-        print(f"\n{Fore.CYAN}Analysis Method:{Style.RESET_ALL} {algorithm}")
+        algorithm = _("zxcvbn + Enhanced Analysis") if self.use_zxcvbn else _("Built-in Algorithm")
+        print(f"\n{Fore.CYAN}{_('Analysis Method')}:{Style.RESET_ALL} {algorithm}")
         
         # Basic info
-        print(f"{Fore.CYAN}Password Length:{Style.RESET_ALL} {len(password)} characters")
+        print(f"{Fore.CYAN}{_('Password Length')}:{Style.RESET_ALL} {len(password)} {_('characters')}")
         
         # Character types
         char_types = self.check_character_types(password)
-        print(f"\n{Fore.CYAN}Character Composition:{Style.RESET_ALL}")
-        print(f"  - Lowercase letters: {Fore.GREEN + '[YES]' if char_types['lowercase'] else Fore.RED + '[NO]'}{Style.RESET_ALL}")
-        print(f"  - Uppercase letters: {Fore.GREEN + '[YES]' if char_types['uppercase'] else Fore.RED + '[NO]'}{Style.RESET_ALL}")
-        print(f"  - Numbers: {Fore.GREEN + '[YES]' if char_types['digits'] else Fore.RED + '[NO]'}{Style.RESET_ALL}")
-        print(f"  - Special characters: {Fore.GREEN + '[YES]' if char_types['special'] else Fore.RED + '[NO]'}{Style.RESET_ALL}")
-          # Entropy and zxcvbn specific info
-        entropy = self.calculate_entropy(password)
-        print(f"\n{Fore.CYAN}Technical Metrics:{Style.RESET_ALL}")
-        print(f"  - Entropy: {entropy:.1f} bits")
-        print(f"  - Unique characters: {len(set(password))}/{len(password)}")
+        print(f"\n{Fore.CYAN}{_('Character Composition')}:{Style.RESET_ALL}")
+        print(f"  - {_('Lowercase letters')}: {Fore.GREEN + '[YES]' if char_types['lowercase'] else Fore.RED + '[NO]'}{Style.RESET_ALL}")
+        print(f"  - {_('Uppercase letters')}: {Fore.GREEN + '[YES]' if char_types['uppercase'] else Fore.RED + '[NO]'}{Style.RESET_ALL}")
+        print(f"  - {_('Numbers')}: {Fore.GREEN + '[YES]' if char_types['digits'] else Fore.RED + '[NO]'}{Style.RESET_ALL}")
+        print(f"  - {_('Special characters')}: {Fore.GREEN + '[YES]' if char_types['special'] else Fore.RED + '[NO]'}{Style.RESET_ALL}")
         
+        # Entropy and zxcvbn specific info
+        entropy = self.calculate_entropy(password)
+        print(f"\n{Fore.CYAN}{_('Technical Metrics')}:{Style.RESET_ALL}")
+        print(f"  - {_('Entropy')}: {entropy:.1f} {_('bits')}")
+        print(f"  - {_('Unique characters')}: {len(set(password))}/{len(password)}")
         if zxcvbn_result:
-            print(f"  - zxcvbn Score: {zxcvbn_result['score']}/4")
-            print(f"  - Guesses needed: {zxcvbn_result['guesses']:,}")
+            print(f"  - {_('zxcvbn Score')}: {zxcvbn_result['score']}/4")
+            print(f"  - {_('Guesses needed')}: {zxcvbn_result['guesses']:,}")
             if 'entropy' in zxcvbn_result:
-                print(f"  - zxcvbn Entropy: {zxcvbn_result['entropy']:.1f} bits")
+                print(f"  - {_('zxcvbn Entropy')}: {zxcvbn_result['entropy']:.1f} {_('bits')}")
         
         # Score and strength
-        print(f"\n{Fore.CYAN}Overall Assessment:{Style.RESET_ALL}")
-        print(f"  - Strength Score: {score}/100")
-        print(f"  - Strength Level: {color}{strength}{Style.RESET_ALL}")
+        print(f"\n{Fore.CYAN}{_('Overall Assessment')}:{Style.RESET_ALL}")
+        print(f"  - {_('Strength Score')}: {score}/100")
+        print(f"  - {_('Strength Level')}: {color}{strength}{Style.RESET_ALL}")
         
         # Progress bar
         bar_length = 50
@@ -514,7 +517,7 @@ class PasswordStrengthChecker:
         # Security issues
         issues = self.check_common_patterns(password)
         if issues:
-            print(f"\n{Fore.YELLOW}[!] Security Issues Detected:{Style.RESET_ALL}")
+            print(f"\n{Fore.YELLOW}[!] {_('Security Issues Detected')}:{Style.RESET_ALL}")
             for i, issue in enumerate(issues, 1):
                 print(f"  {i}. {issue}")
           # zxcvbn specific patterns
@@ -524,29 +527,28 @@ class PasswordStrengthChecker:
                 pattern_type = match.get('pattern', 'unknown')
                 token = match.get('token', '')
                 print(f"  - {pattern_type.title()}: '{token}'")
-        
-        # Have I Been Pwned check
+          # Have I Been Pwned check
         if self.hibp_checker:
-            print(f"\n{Fore.CYAN}[HIBP] Have I Been Pwned Check:{Style.RESET_ALL}")
+            print(f"\n{Fore.CYAN}[HIBP] {_('Have I Been Pwned Check')}:{Style.RESET_ALL}")
             try:
                 hibp_result = self.hibp_checker.get_breach_info(password)
                 if hibp_result['is_compromised']:
-                    print(f"  - {Fore.RED}⚠️  PASSWORD COMPROMISED!{Style.RESET_ALL}")
-                    print(f"  - Found in {hibp_result['breach_count']:,} data breaches")
-                    print(f"  - Risk Level: {Fore.RED}{hibp_result['risk_level']}{Style.RESET_ALL}")
+                    print(f"  - {Fore.RED}⚠️  {_('PASSWORD COMPROMISED!')}{Style.RESET_ALL}")
+                    print(f"  - {_('Found in')} {hibp_result['breach_count']:,} {_('data breaches')}")
+                    print(f"  - {_('Risk Level')}: {Fore.RED}{_(hibp_result['risk_level'])}{Style.RESET_ALL}")
                     print(f"  - {Fore.YELLOW}{hibp_result['recommendation']}{Style.RESET_ALL}")
                 else:
-                    print(f"  - {Fore.GREEN}✓ Password not found in known data breaches{Style.RESET_ALL}")
+                    print(f"  - {Fore.GREEN}✓ {_('Password not found in known data breaches')}{Style.RESET_ALL}")
                     print(f"  - {hibp_result['recommendation']}")
             except Exception as e:
-                print(f"  - {Fore.YELLOW}Unable to check breaches: {str(e)}{Style.RESET_ALL}")
+                print(f"  - {Fore.YELLOW}{_('Unable to check breaches')}: {str(e)}{Style.RESET_ALL}")
         else:
-            print(f"\n{Fore.YELLOW}[HIBP] Have I Been Pwned check unavailable{Style.RESET_ALL}")
-            print(f"  - Install requests library for breach checking: pip install requests")
+            print(f"\n{Fore.YELLOW}[HIBP] {_('Have I Been Pwned check unavailable')}{Style.RESET_ALL}")
+            print(f"  - {_('Install requests library for breach checking')}: pip install requests")
         
         # Suggestions
         if suggestions:
-            print(f"\n{Fore.CYAN}[+] Improvement Suggestions:{Style.RESET_ALL}")
+            print(f"\n{Fore.CYAN}[+] {_('Improvement Suggestions')}:{Style.RESET_ALL}")
             for i, suggestion in enumerate(suggestions, 1):
                 print(f"  {i}. {suggestion}")
         
@@ -576,8 +578,7 @@ class PasswordStrengthChecker:
         # Offline attack (slow)
         offline_slow = result['crack_times_display']['offline_slow_hashing_1e4_per_second']
         print(f"  - Offline attack (slow): {Fore.YELLOW}{offline_slow}{Style.RESET_ALL}")
-        
-        # Offline attack (fast)
+          # Offline attack (fast)
         offline_fast = result['crack_times_display']['offline_fast_hashing_1e10_per_second']
         print(f"  - Offline attack (fast): {Fore.GREEN}{offline_fast}{Style.RESET_ALL}")
     
@@ -615,24 +616,24 @@ class PasswordStrengthChecker:
     
     def _display_security_tips(self, score: int) -> None:
         """Display security tips based on password score"""
-        print(f"\n{Fore.CYAN}[SECURITY] Security Recommendations:{Style.RESET_ALL}")
+        print(f"\n{Fore.CYAN}[SECURITY] {_('Security Recommendations')}:{Style.RESET_ALL}")
         
         if score < 40:
-            print(f"  - {Fore.RED}Critical:{Style.RESET_ALL} This password is easily crackable")
-            print(f"  - Use a password manager to generate strong passwords")
-            print(f"  - Enable two-factor authentication (2FA) wherever possible")
+            print(f"  - {Fore.RED}{_('Critical')}: {_('This password is easily crackable')}{Style.RESET_ALL}")
+            print(f"  - {_('Use a password manager to generate strong passwords')}")
+            print(f"  - {_('Enable two-factor authentication (2FA) wherever possible')}")
         elif score < 60:
-            print(f"  - {Fore.YELLOW}Important:{Style.RESET_ALL} Consider strengthening this password")
-            print(f"  - Add more character types and length")
+            print(f"  - {Fore.YELLOW}{_('Important')}: {_('Consider strengthening this password')}{Style.RESET_ALL}")
+            print(f"  - {_('Add more character types and length')}")
         elif score < 80:
-            print(f"  - {Fore.GREEN}Good:{Style.RESET_ALL} This is a reasonably strong password")
-            print(f"  - Consider making it even longer for extra security")
+            print(f"  - {Fore.GREEN}{_('Good')}: {_('This is a reasonably strong password')}{Style.RESET_ALL}")
+            print(f"  - {_('Consider making it even longer for extra security')}")
         else:
-            print(f"  - {Fore.GREEN}Excellent:{Style.RESET_ALL} This is a very strong password")
+            print(f"  - {Fore.GREEN}{_('Excellent')}: {_('This is a very strong password')}{Style.RESET_ALL}")
         
-        print(f"  - Never reuse passwords across multiple accounts")
-        print(f"  - Update passwords regularly, especially for sensitive accounts")
-        print(f"  - Store passwords securely using a password manager")
+        print(f"  - {_('Never reuse passwords across multiple accounts')}")
+        print(f"  - {_('Update passwords regularly, especially for sensitive accounts')}")
+        print(f"  - {_('Store passwords securely using a password manager')}")
     
     def get_password_analysis_data(self, password: str, include_password: bool = False) -> Dict:
         """
@@ -871,7 +872,19 @@ Features:
         help='Include actual passwords in export (SECURITY RISK - use with caution)'
     )
     
+    parser.add_argument(
+        '--language', '-l',
+        type=str,
+        choices=['en', 'es', 'fr', 'de', 'zh', 'ja'],
+        help='Language for output (en=English, es=Spanish, fr=French, de=German, zh=Chinese, ja=Japanese)'
+    )
+    
     args = parser.parse_args()
+    
+    # Set language if specified
+    if args.language and i18n:
+        if not i18n.set_language(args.language):
+            print(f"{Fore.YELLOW}Warning: Language '{args.language}' not fully supported. Using English.{Style.RESET_ALL}")
     
     # Initialize the checker
     checker = PasswordStrengthChecker()
@@ -879,13 +892,13 @@ Features:
     # Force built-in algorithm if requested
     if args.no_zxcvbn:
         checker.use_zxcvbn = False
-    
-    # Disable HIBP checking if requested
+      # Disable HIBP checking if requested
     if args.no_hibp:
         checker.hibp_checker = None
-      # Display header
-    print(f"\n{Fore.CYAN + Style.BRIGHT}[*] ENHANCED PASSWORD STRENGTH CHECKER [*]{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}Advanced password security analysis with comprehensive checks{Style.RESET_ALL}")
+    
+    # Display header
+    print(f"\n{Fore.CYAN + Style.BRIGHT}[*] {_('ENHANCED PASSWORD STRENGTH CHECKER')} [*]{Style.RESET_ALL}")
+    print(f"{Fore.CYAN}{_('Advanced password security analysis with comprehensive checks')}{Style.RESET_ALL}")
     
     try:
         if args.batch:

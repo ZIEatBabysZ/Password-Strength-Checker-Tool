@@ -18,13 +18,23 @@ from typing import Dict, List, Tuple, Optional
 import os
 import sys
 
+# Import internationalization support
+try:
+    from i18n_manager import i18n, _
+except ImportError:
+    # Fallback if i18n not available
+    print("Warning: Internationalization not available. Using English only.")
+    def _(text): return text
+    i18n = None
+
 # Import the enhanced password checker class
 try:
     from enhanced_password_checker import PasswordStrengthChecker
+    print("Using enhanced password checker for GUI")
 except ImportError:
     # Fallback if import fails
-    print("Warning: Could not import enhanced_password_checker. Using basic functionality.")
-    from password_checker import PasswordStrengthChecker
+    print("Warning: Could not import enhanced_password_checker.")
+    sys.exit(1)
 
 class PasswordCheckerGUI:
     """GUI class for password strength checker"""
@@ -32,20 +42,20 @@ class PasswordCheckerGUI:
     def __init__(self, root):
         """Initialize the GUI"""
         self.root = root
-        self.root.title("🔒 Password Strength Checker Tool")
+        self.root.title(f"🔒 {_('Password Strength Checker Tool')}")
         self.root.geometry("800x700")
         self.root.minsize(700, 600)
         
         # Initialize the password checker
         self.checker = PasswordStrengthChecker()
         
-        # Color scheme
+        # Color scheme - use translated strength levels as keys
         self.colors = {
-            'Very Strong': '#2e7d32',  # Dark green
-            'Strong': '#388e3c',       # Green
-            'Medium': '#f57c00',       # Orange
-            'Weak': '#d32f2f',         # Red
-            'Very Weak': '#b71c1c'     # Dark red
+            _('Very Strong'): '#2e7d32',  # Dark green
+            _('Strong'): '#388e3c',       # Green
+            _('Medium'): '#f57c00',       # Orange
+            _('Weak'): '#d32f2f',         # Red
+            _('Very Weak'): '#b71c1c'     # Dark red
         }
         
         self.create_widgets()
@@ -74,19 +84,30 @@ class PasswordCheckerGUI:
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
         main_frame.columnconfigure(1, weight=1)
-        
-        # Title
-        title_label = ttk.Label(main_frame, text="🔒 Password Strength Checker", 
+          # Title
+        title_label = ttk.Label(main_frame, text=f"🔒 {_('Password Strength Checker')}", 
                                font=('Arial', 16, 'bold'))
-        title_label.grid(row=0, column=0, columnspan=3, pady=(0, 20))
+        title_label.grid(row=0, column=0, columnspan=2, pady=(0, 10))
+        
+        # Language selection
+        if i18n:
+            language_frame = ttk.Frame(main_frame)
+            language_frame.grid(row=0, column=2, sticky=tk.E, pady=(0, 10))
+            
+            ttk.Label(language_frame, text=_("Language:")).grid(row=0, column=0, padx=(0, 5))
+            self.language_var = tk.StringVar(value=i18n.get_current_language())
+            language_combo = ttk.Combobox(language_frame, textvariable=self.language_var,
+                                        values=list(i18n.get_supported_languages().keys()),
+                                        state="readonly", width=8)
+            language_combo.grid(row=0, column=1)
+            language_combo.bind('<<ComboboxSelected>>', self.on_language_change)
         
         # Password input section
-        input_frame = ttk.LabelFrame(main_frame, text="Password Input", padding="10")
+        input_frame = ttk.LabelFrame(main_frame, text=_("Password Input"), padding="10")
         input_frame.grid(row=1, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 10))
         input_frame.columnconfigure(1, weight=1)
-        
-        # Password entry
-        ttk.Label(input_frame, text="Password:").grid(row=0, column=0, sticky=tk.W, padx=(0, 10))
+          # Password entry
+        ttk.Label(input_frame, text=f"{_('Password')}:").grid(row=0, column=0, sticky=tk.W, padx=(0, 10))
         self.password_var = tk.StringVar()
         self.password_entry = ttk.Entry(input_frame, textvariable=self.password_var, 
                                       show="*", font=('Arial', 11))
@@ -95,11 +116,12 @@ class PasswordCheckerGUI:
         
         # Show/Hide password button
         self.show_password_var = tk.BooleanVar()
-        self.show_button = ttk.Checkbutton(input_frame, text="Show", 
+        self.show_button = ttk.Checkbutton(input_frame, text=_("Show"), 
                                          variable=self.show_password_var,
                                          command=self.toggle_password_visibility)
         self.show_button.grid(row=0, column=2)
-          # Control buttons
+        
+        # Control buttons
         button_frame = ttk.Frame(input_frame)
         button_frame.grid(row=1, column=0, columnspan=3, pady=(10, 0))
         
@@ -1023,6 +1045,22 @@ Need help? Check Tools → Password Tips for security best practices!
         
         ttk.Button(main_frame, text="Close", command=guide_window.destroy).pack(pady=(10, 0))
 
+    def on_language_change(self, event=None):
+        """Handle language change"""
+        if i18n and hasattr(self, 'language_var'):
+            new_language = self.language_var.get()
+            if i18n.set_language(new_language):
+                # Update GUI title
+                self.root.title(f"🔒 {_('Password Strength Checker Tool')}")
+                # Refresh the interface
+                self.refresh_interface()
+    
+    def refresh_interface(self):
+        """Refresh all interface text to current language"""
+        # Re-analyze current password if any
+        if hasattr(self, 'password_var') and self.password_var.get():
+            self.analyze_password()
+    
 def main():
     """Main function to run the GUI application"""
     try:

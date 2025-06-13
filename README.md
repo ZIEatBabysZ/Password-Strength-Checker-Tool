@@ -9,6 +9,7 @@ A comprehensive Python command-line tool that analyzes password strength using m
 - **Comprehensive Scoring**: 0-100 point scale with detailed breakdowns
 - **Color-Coded Output**: Visual strength indicators (Red=Weak, Green=Strong)
 - **Multiple Input Methods**: Command-line arguments, interactive mode, batch processing
+- **Multi-Language Support**: Available in English, Spanish, French, German, Chinese, and Japanese
 - **Cross-Platform**: Works on Windows, macOS, and Linux
 
 ### Security Analysis
@@ -32,40 +33,20 @@ A comprehensive Python command-line tool that analyzes password strength using m
 - Python 3.6 or higher
 - pip package manager
 
-### Step 1: Clone or Download
+### Quick Setup
 ```bash
+# Clone the repository
 git clone <repository-url>
-cd PasswordSCT
-```
+cd Password-Strength-Checker-Tool
 
-### Step 2: Quick Setup (All Platforms)
-
-#### Windows
-```cmd
-# Option 1: Use the Windows batch file
-run.bat setup
-
-# Option 2: Use the cross-platform Python launcher
-python run.py setup
-
-# Option 3: Manual setup
+# Install dependencies
 pip install -r requirements.txt
-```
 
-#### macOS/Linux
-```bash
-# Option 1: Use the Unix shell script
-chmod +x run.sh
-./run.sh setup
+# Or use the setup script
+python setup.py
 
-# Option 2: Use the Makefile (recommended)
-make setup
-
-# Option 3: Use the cross-platform Python launcher
-python3 run.py setup
-
-# Option 4: Manual setup
-pip3 install -r requirements.txt
+# Test installation
+python enhanced_password_checker.py --help
 ```
 
 **Required packages:**
@@ -77,33 +58,7 @@ pip3 install -r requirements.txt
 
 ### Cross-Platform Quick Start
 
-#### Windows
-```cmd
-# Interactive menu (double-click run.bat or use command line)
-run.bat
-
-# Specific commands
-run.bat test
-run.bat enhanced "MyPassword123!"
-run.bat batch test_passwords.txt
-```
-
-#### macOS/Linux
-```bash
-# Interactive menu
-./run.sh
-
-# Using Makefile
-make test
-make demo
-
-# Specific commands
-./run.sh test
-./run.sh enhanced "MyPassword123!"
-./run.sh batch test_passwords.txt
-```
-
-#### All Platforms (Python launcher)
+#### All Platforms (Recommended)
 ```bash
 # Interactive GUI-like menu
 python run.py
@@ -112,43 +67,13 @@ python run.py
 python run.py test
 python run.py enhanced "MyPassword123!"
 python run.py batch test_passwords.txt
+
+# Direct usage
+python enhanced_password_checker.py -p "MyPassword123!"
+python password_checker_gui.py
 ```
 
-### Platform-Specific Features
-
-#### Windows Features
-- **Double-click support**: Just double-click `run.bat` for interactive menu
-- **PowerShell integration**: Use `run.ps1` for PowerShell users
-- **Command Prompt support**: Full compatibility with cmd.exe
-
-#### macOS/Linux Features
-- **Makefile support**: Use `make` commands for easy operation
-- **Shell script**: Native bash script for Unix environments
-- **System installation**: `sudo make install` for system-wide access
-
-### System-Wide Installation (Optional)
-
-#### macOS/Linux
-```bash
-# Install system-wide (requires sudo)
-sudo make install
-
-# Now you can use from anywhere:
-passwordsct enhanced "MyPassword123!"
-passwordsct-gui  # GUI-like interface
-
-# Uninstall if needed
-sudo make uninstall
-```
-
-#### Windows
-```cmd
-# Add to PATH manually or use portable mode
-# Copy the entire folder to a permanent location
-# Add the folder to your PATH environment variable
-```
-
-### Direct Python Usage (All Platforms)
+### Direct Python Usage
 
 #### GUI Version (`password_checker_gui.py`)
 ```bash
@@ -168,16 +93,7 @@ The GUI version provides:
 - **Security Tips**: Built-in password security guidance
 - **Have I Been Pwned Integration**: Checks if passwords have been compromised in data breaches
 
-#### Basic Version (`password_checker.py`)
-```bash
-# Windows
-python password_checker.py -p "MyPassword123!"
-
-# macOS/Linux
-python3 password_checker.py -p "MyPassword123!"
-```
-
-#### Enhanced Version (`enhanced_password_checker.py`)
+#### Enhanced Password Checker (`enhanced_password_checker.py`)
 ```bash
 # Single password analysis
 python enhanced_password_checker.py -p "MyPassword123!"
@@ -202,7 +118,57 @@ python enhanced_password_checker.py -b passwords.txt --export-csv "results.csv"
 
 # Help
 python enhanced_password_checker.py --help
+
+# Multi-language support (CLI only)
+python enhanced_password_checker.py -p "MyPassword123!" --language es  # Spanish
+python enhanced_password_checker.py -p "MyPassword123!" -l fr           # French
+python enhanced_password_checker.py -p "MyPassword123!" -l de           # German
+python enhanced_password_checker.py -p "MyPassword123!" -l zh           # Chinese
+python enhanced_password_checker.py -p "MyPassword123!" -l ja           # Japanese
 ```
+
+#### Multi-Language Support
+
+The tool supports multiple languages for user interface text and feedback messages:
+
+**Supported Languages:**
+- **English (en)** - Default language
+- **Spanish (es)** - Español
+- **French (fr)** - Français
+- **German (de)** - Deutsch
+- **Chinese (zh)** - 中文
+- **Japanese (ja)** - 日本語
+
+**Usage Examples:**
+```bash
+# Analyze password with Spanish output
+python enhanced_password_checker.py -p "MiContraseña123!" --language es
+
+# Interactive mode in French
+python enhanced_password_checker.py -i -l fr
+
+# Batch analysis with German output
+python enhanced_password_checker.py -b passwords.txt --language de --export-csv results.csv
+
+# GUI automatically detects system language (English fallback)
+python password_checker_gui.py
+```
+
+**CLI vs GUI Language Support:**
+- **CLI (enhanced_password_checker.py)**: Full multi-language support with `--language` flag
+- **GUI (password_checker_gui.py)**: Includes language selector dropdown for runtime switching
+
+**Translation Coverage:**
+- Strength levels (Very Weak, Weak, Medium, Strong, Very Strong)
+- Security recommendations and suggestions
+- Analysis results and technical metrics
+- Error messages and warnings
+- User interface elements (GUI only)
+
+**Fallback System:**
+- If a translation is not available, the tool falls back to English
+- Robust JSON-based translation system ensures consistent output
+- No errors occur if translation files are missing
 
 #### Batch Processing
 Create a text file with passwords (one per line):
