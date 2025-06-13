@@ -10,7 +10,7 @@ We provide security updates for the following versions:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 2.x.x   | :white_check_mark: |
+| 1.0.3   | :white_check_mark: |
 | 1.x.x   | :x:                |
 
 ## Security Features
@@ -46,7 +46,7 @@ We provide security updates for the following versions:
 We take security vulnerabilities seriously. If you discover a security issue, please follow these steps:
 
 1. **DO NOT** create a public GitHub issue for security vulnerabilities
-2. Email us directly at: **[security@passwordchecker.tool]** (replace with actual email)
+2. Email us directly at: **[]**
 3. Include the following information:
    - Description of the vulnerability
    - Steps to reproduce the issue
