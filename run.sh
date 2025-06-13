@@ -15,6 +15,7 @@ show_help() {
     echo
     echo "Available commands:"
     echo "  ./run.sh setup        - Install dependencies and setup tool"
+    echo "  ./run.sh gui           - Launch GUI interface"
     echo "  ./run.sh demo          - Run interactive demo"
     echo "  ./run.sh test          - Run basic functionality tests"
     echo "  ./run.sh basic [pass]  - Use basic password checker"
@@ -23,6 +24,7 @@ show_help() {
     echo
     echo "Examples:"
     echo "  ./run.sh setup"
+    echo "  ./run.sh gui"
     echo "  ./run.sh enhanced \"MyPassword123!\""
     echo "  ./run.sh batch test_passwords.txt"
     echo
@@ -37,14 +39,15 @@ show_interactive_menu() {
         echo
         echo "Available commands:"
         echo "  1. Setup tool (install dependencies)"
-        echo "  2. Run interactive password checker"
-        echo "  3. Test tool functionality"
-        echo "  4. Analyze a password you type"
-        echo "  5. Batch analyze from file"
-        echo "  6. Show command help"
+        echo "  2. Launch GUI interface"
+        echo "  3. Run interactive password checker"
+        echo "  4. Test tool functionality"
+        echo "  5. Analyze a password you type"
+        echo "  6. Batch analyze from file"
+        echo "  7. Show command help"
         echo "  0. Exit"
         echo
-        read -p "Enter your choice (0-6): " choice
+        read -p "Enter your choice (0-7): " choice
         
         case $choice in
             1)
@@ -53,21 +56,25 @@ show_interactive_menu() {
                 ;;
             2)
                 INTERACTIVE_MODE=1
-                run_interactive
+                launch_gui
                 ;;
             3)
                 INTERACTIVE_MODE=1
-                test_tool
+                run_interactive
                 ;;
             4)
                 INTERACTIVE_MODE=1
-                input_password
+                test_tool
                 ;;
             5)
                 INTERACTIVE_MODE=1
-                batch_default
+                input_password
                 ;;
             6)
+                INTERACTIVE_MODE=1
+                batch_default
+                ;;
+            7)
                 INTERACTIVE_MODE=1
                 show_help
                 if [ "$INTERACTIVE_MODE" -eq 1 ]; then
@@ -123,6 +130,17 @@ input_password() {
 batch_default() {
     echo "Using default test file..."
     python3 enhanced_password_checker.py -b test_passwords.txt
+    if [ "$INTERACTIVE_MODE" -eq 1 ]; then
+        echo
+        echo "Press Enter to return to menu..."
+        read
+    fi
+}
+
+# Function to launch GUI
+launch_gui() {
+    echo "Launching GUI interface..."
+    python3 password_checker_gui.py
     if [ "$INTERACTIVE_MODE" -eq 1 ]; then
         echo
         echo "Press Enter to return to menu..."
@@ -220,6 +238,9 @@ case "$1" in
         ;;
     "setup")
         setup_tool
+        ;;
+    "gui")
+        launch_gui
         ;;
     "demo")
         demo_tool

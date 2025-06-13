@@ -9,6 +9,7 @@ if "%1"=="" (
 )
 if "%1"=="help" goto help
 if "%1"=="setup" goto setup
+if "%1"=="gui" goto gui
 if "%1"=="demo" goto demo
 if "%1"=="test" goto test
 if "%1"=="basic" goto basic
@@ -23,14 +24,15 @@ echo ================================================
 echo.
 echo Available commands:
 echo   1. Setup tool (install dependencies)
-echo   2. Run interactive password checker
-echo   3. Test tool functionality
-echo   4. Analyze a password you type
-echo   5. Batch analyze from file
-echo   6. Show command help
+echo   2. Launch GUI interface
+echo   3. Run interactive password checker
+echo   4. Test tool functionality
+echo   5. Analyze a password you type
+echo   6. Batch analyze from file
+echo   7. Show command help
 echo   0. Exit
 echo.
-set /p choice="Enter your choice (0-6): "
+set /p choice="Enter your choice (0-7): "
 
 if "%choice%"=="1" (
     set INTERACTIVE_MODE=1
@@ -38,21 +40,25 @@ if "%choice%"=="1" (
 )
 if "%choice%"=="2" (
     set INTERACTIVE_MODE=1
-    goto run_interactive
+    goto gui
 )
 if "%choice%"=="3" (
     set INTERACTIVE_MODE=1
-    goto test
+    goto run_interactive
 )
 if "%choice%"=="4" (
     set INTERACTIVE_MODE=1
-    goto input_password
+    goto test
 )
 if "%choice%"=="5" (
     set INTERACTIVE_MODE=1
-    goto batch_default
+    goto input_password
 )
 if "%choice%"=="6" (
+    set INTERACTIVE_MODE=1
+    goto batch_default
+)
+if "%choice%"=="7" (
     set INTERACTIVE_MODE=1
     goto help
 )
@@ -95,6 +101,7 @@ echo ================================================
 echo.
 echo Available commands:
 echo   run.bat setup        - Install dependencies and setup tool
+echo   run.bat gui           - Launch GUI interface
 echo   run.bat demo          - Run interactive demo
 echo   run.bat test          - Run basic functionality tests
 echo   run.bat basic [pass]  - Use basic password checker
@@ -103,10 +110,22 @@ echo   run.bat batch [file]  - Batch analyze passwords from file
 echo.
 echo Examples:
 echo   run.bat setup
+echo   run.bat gui
 echo   run.bat enhanced "MyPassword123!"
 echo   run.bat batch test_passwords.txt
 echo.
 if "%INTERACTIVE_MODE%"=="1" (
+    echo Press any key to return to menu...
+    pause >nul
+    goto help_interactive
+)
+goto end
+
+:gui
+echo Launching GUI interface...
+python password_checker_gui.py
+if "%INTERACTIVE_MODE%"=="1" (
+    echo.
     echo Press any key to return to menu...
     pause >nul
     goto help_interactive

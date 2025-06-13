@@ -149,6 +149,23 @@ sudo make uninstall
 
 ### Direct Python Usage (All Platforms)
 
+#### GUI Version (`password_checker_gui.py`)
+```bash
+# Launch the GUI application
+python password_checker_gui.py
+```
+
+The GUI version provides:
+- **Real-time Analysis**: Password strength updates as you type
+- **Visual Progress Bar**: Color-coded strength meter
+- **Detailed Results**: Comprehensive analysis in a scrollable text area
+- **Password Generation**: Built-in strong password generator with customization
+- **Batch Analysis**: Process multiple passwords from files
+- **Export Results**: Save analysis results to text files
+- **User-Friendly Interface**: Intuitive design with menus and dialogs
+- **Password Visibility Toggle**: Show/hide password option
+- **Security Tips**: Built-in password security guidance
+
 #### Basic Version (`password_checker.py`)
 ```bash
 # Windows
@@ -332,6 +349,7 @@ When available, the tool also uses the zxcvbn library, which provides:
 PasswordSCT/
 ├── password_checker.py          # Basic version with built-in algorithm
 ├── enhanced_password_checker.py # Enhanced version with zxcvbn integration
+├── password_checker_gui.py      # GUI version with tkinter interface
 ├── run.py                      # Cross-platform Python launcher (all platforms)
 ├── run.bat                     # Windows batch file launcher
 ├── run.ps1                     # Windows PowerShell script
@@ -456,8 +474,8 @@ chmod +x password_checker.py
 
 ## 🚀 Future Enhancements
 
-- [ ] GUI interface using tkinter or PyQt
-- [ ] Password generation with customizable criteria
+- [x] GUI interface using tkinter or PyQt ✅
+- [x] Password generation with customizable criteria ✅ (Available in GUI)
 - [ ] Integration with Have I Been Pwned API
 - [ ] Export results to JSON/CSV format
 - [ ] Docker containerization

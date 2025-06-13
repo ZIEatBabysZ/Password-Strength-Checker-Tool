@@ -6,13 +6,13 @@ param(
     [string]$Argument = ""
 )
 
-function Show-Help {
-    Write-Host ""
+function Show-Help {    Write-Host ""
     Write-Host "Password Strength Checker Tool - Quick Start" -ForegroundColor Cyan
     Write-Host "================================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "Available commands:" -ForegroundColor Yellow
     Write-Host "  .\run.ps1 setup        - Install dependencies and setup tool"
+    Write-Host "  .\run.ps1 gui           - Launch GUI interface"
     Write-Host "  .\run.ps1 demo          - Run interactive demo"
     Write-Host "  .\run.ps1 test          - Run basic functionality tests"
     Write-Host "  .\run.ps1 basic [pass]  - Use basic password checker"
@@ -21,6 +21,7 @@ function Show-Help {
     Write-Host ""
     Write-Host "Examples:" -ForegroundColor Green
     Write-Host "  .\run.ps1 setup"
+    Write-Host "  .\run.ps1 gui"
     Write-Host "  .\run.ps1 enhanced `"MyPassword123!`""
     Write-Host "  .\run.ps1 batch test_passwords.txt"
     Write-Host ""
@@ -76,6 +77,11 @@ function Run-Batch {
     }
 }
 
+function Run-GUI {
+    Write-Host "Launching GUI interface..." -ForegroundColor Yellow
+    python password_checker_gui.py
+}
+
 # Main execution
 switch ($Command.ToLower()) {
     "" { Show-Help }
@@ -86,6 +92,7 @@ switch ($Command.ToLower()) {
     "basic" { Run-Basic }
     "enhanced" { Run-Enhanced }
     "batch" { Run-Batch }
+    "gui" { Run-GUI }
     default { 
         Write-Host "Unknown command: $Command" -ForegroundColor Red
         Show-Help 

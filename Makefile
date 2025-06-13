@@ -1,7 +1,7 @@
 # Makefile for Password Strength Checker Tool
 # Compatible with macOS and Linux
 
-.PHONY: help setup test clean install uninstall demo basic enhanced batch
+.PHONY: help setup test clean install uninstall demo basic enhanced batch gui
 
 # Default Python command
 PYTHON := python3
@@ -20,10 +20,10 @@ endif
 help:
 	@echo "Password Strength Checker Tool - Build System"
 	@echo "=============================================="
-	@echo ""
-	@echo "Available targets:"
+	@echo ""	@echo "Available targets:"
 	@echo "  help      - Show this help message"
 	@echo "  setup     - Install dependencies and setup tool"
+	@echo "  gui       - Launch GUI interface"
 	@echo "  test      - Run basic functionality tests"
 	@echo "  demo      - Run interactive demo"
 	@echo "  clean     - Clean up generated files"
@@ -32,6 +32,7 @@ help:
 	@echo ""
 	@echo "Usage examples:"
 	@echo "  make setup"
+	@echo "  make gui"
 	@echo "  make test"
 	@echo "  make demo"
 	@echo "  ./run.sh enhanced \"MyPassword123!\""
@@ -61,6 +62,11 @@ test:
 # Run demo
 demo:
 	@$(PYTHON) demo.py
+
+# Launch GUI interface
+gui:
+	@echo "Launching GUI interface..."
+	@$(PYTHON) password_checker_gui.py
 
 # Run basic password checker
 basic:
