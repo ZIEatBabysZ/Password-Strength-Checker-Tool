@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Password Strength Checker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .error-card {
+            max-width: 500px;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .error-header {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .error-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-card">
+        <div class="error-header">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2>Application Error</h2>
+        </div>
+        <div class="card-body text-center">
+            <h5 class="card-title text-danger">Something went wrong</h5>
+            <p class="card-text">{{ error }}</p>
+            
+            <div class="mt-4">
+                <h6>Troubleshooting Steps:</h6>
+                <ul class="text-start">
+                    <li>Make sure all dependencies are installed: <code>pip install -r requirements.txt</code></li>
+                    <li>Install Flask if missing: <code>pip install flask</code></li>
+                    <li>Ensure the core password checker files are present</li>
+                    <li>Check the terminal for more detailed error messages</li>
+                </ul>
+            </div>
+            
+            <a href="javascript:history.back()" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Go Back
+            </a>
+            <a href="javascript:location.reload()" class="btn btn-outline-primary ms-2">
+                <i class="fas fa-redo"></i> Retry
+            </a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,12 +1,7 @@
 #!/usr/bin/env python3
 """
 Password Strength Checker Tool - GUI Version
-
-A comprehensive GUI application that analyzes password strength using multiple criteria
-including zxcvbn scoring, length, character types, dictionary words, entropy, and common password detection.
-
-Author: Password Security Tool
-Date: June 2025
+Comprehensive password analysis with user-friendly interface
 """
 
 import tkinter as tk
@@ -23,17 +18,13 @@ try:
     from i18n_manager import i18n, _
 except ImportError:
     # Fallback if i18n not available
-    print("Warning: Internationalization not available. Using English only.")
     def _(text): return text
     i18n = None
 
 # Import the enhanced password checker class
 try:
     from enhanced_password_checker import PasswordStrengthChecker
-    print("Using enhanced password checker for GUI")
 except ImportError:
-    # Fallback if import fails
-    print("Warning: Could not import enhanced_password_checker.")
     sys.exit(1)
 
 class PasswordCheckerGUI:
@@ -1078,7 +1069,6 @@ def main():
         root.mainloop()
         
     except Exception as e:
-        print(f"Error starting GUI: {e}")
         import traceback
         traceback.print_exc()
 

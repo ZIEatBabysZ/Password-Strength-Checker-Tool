@@ -1,549 +1,126 @@
 # 🔒 Password Strength Checker Tool
 
-A comprehensive Python command-line tool that analyzes password strength using multiple sophisticated algorithms and provides detailed security assessments.
+A comprehensive Python tool that analyzes password strength using advanced algorithms and provides detailed security assessments.
 
 ## ✨ Features
 
-### Core Functionality
-- **Multiple Analysis Methods**: Built-in algorithm + optional zxcvbn integration
-- **Comprehensive Scoring**: 0-100 point scale with detailed breakdowns
-- **Color-Coded Output**: Visual strength indicators (Red=Weak, Green=Strong)
-- **Multiple Input Methods**: Command-line arguments, interactive mode, batch processing
-- **Multi-Language Support**: Available in English, Spanish, French, German, Chinese, and Japanese
+- **Advanced Analysis**: Built-in algorithm + zxcvbn integration
+- **Multiple Interfaces**: CLI, GUI, and Web interface
+- **Multi-Language Support**: English, Spanish, French
+- **Security Checking**: Have I Been Pwned integration
+- **Export Options**: JSON, CSV export capabilities
 - **Cross-Platform**: Works on Windows, macOS, and Linux
 
-### Security Analysis
-- **Length Assessment**: Optimal length recommendations
-- **Character Type Detection**: Uppercase, lowercase, numbers, symbols
-- **Pattern Recognition**: Sequential characters, keyboard patterns, repetition
-- **Dictionary Word Detection**: Common words and variations
-- **Common Password Checking**: Database of 500+ most common passwords
-- **Entropy Calculation**: Mathematical randomness measurement
-- **Attack Time Estimation**: Multiple attack scenario timeframes
+## 🚀 Quick Start
 
-### Advanced Features (with zxcvbn)
-- **Machine Learning Analysis**: Advanced pattern recognition
-- **Multiple Attack Scenarios**: Online throttled/unthrottled, offline slow/fast
-- **Contextual Feedback**: Specific improvement suggestions
-- **Sequence Detection**: Advanced pattern matching
-
-## 🚀 Installation
-
-### Prerequisites
-- Python 3.6 or higher
-- pip package manager
-
-### Quick Setup
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd Password-Strength-Checker-Tool
-
 # Install dependencies
 pip install -r requirements.txt
 
-# Or use the setup script
-python setup.py
+# Run interactive launcher
+python run.py
 
-# Test installation
-python enhanced_password_checker.py --help
+# Check a password
+python run.py check "MyPassword123!"
+
+# Launch GUI
+python run.py gui
+
+# Launch web interface
+python run.py web
 ```
-
-**Required packages:**
-- `colorama>=0.4.4` - Cross-platform color output
-- `zxcvbn>=4.4.28` - Advanced password analysis (optional but recommended)
-- `requests>=2.25.0` - HTTP library for Have I Been Pwned API integration (optional but recommended)
 
 ## 📖 Usage
 
-### Cross-Platform Quick Start
-
-#### All Platforms (Recommended)
+### Command Line
 ```bash
-# Interactive GUI-like menu
-python run.py
-
-# Specific commands
-python run.py test
-python run.py enhanced "MyPassword123!"
-python run.py batch test_passwords.txt
-
-# Direct usage
-python enhanced_password_checker.py -p "MyPassword123!"
-python password_checker_gui.py
-```
-
-### Direct Python Usage
-
-#### GUI Version (`password_checker_gui.py`)
-```bash
-# Launch the GUI application
-python password_checker_gui.py
-```
-
-The GUI version provides:
-- **Real-time Analysis**: Password strength updates as you type
-- **Visual Progress Bar**: Color-coded strength meter
-- **Detailed Results**: Comprehensive analysis in a scrollable text area
-- **Password Generation**: Built-in strong password generator with customization
-- **Batch Analysis**: Process multiple passwords from files
-- **Export Results**: Save analysis results to text files
-- **User-Friendly Interface**: Intuitive design with menus and dialogs
-- **Password Visibility Toggle**: Show/hide password option
-- **Security Tips**: Built-in password security guidance
-- **Have I Been Pwned Integration**: Checks if passwords have been compromised in data breaches
-
-#### Enhanced Password Checker (`enhanced_password_checker.py`)
-```bash
-# Single password analysis
-python enhanced_password_checker.py -p "MyPassword123!"
-
-# Interactive mode
+# Interactive analysis
 python enhanced_password_checker.py -i
 
-# Batch analysis from file
+# Single password
+python enhanced_password_checker.py -p "password"
+
+# Batch analysis
 python enhanced_password_checker.py -b passwords.txt
 
-# Force built-in algorithm (skip zxcvbn)
-python enhanced_password_checker.py -p "password" --no-zxcvbn
-
-# Skip Have I Been Pwned breach checking
-python enhanced_password_checker.py -p "password" --no-hibp
-
-# Export analysis to JSON
-python enhanced_password_checker.py -p "MyPassword123!" --export-json "analysis.json"
-
-# Export batch analysis to CSV
-python enhanced_password_checker.py -b passwords.txt --export-csv "results.csv"
-
-# Help
-python enhanced_password_checker.py --help
-
-# Multi-language support (CLI only)
-python enhanced_password_checker.py -p "MyPassword123!" --language es  # Spanish
-python enhanced_password_checker.py -p "MyPassword123!" -l fr           # French
-python enhanced_password_checker.py -p "MyPassword123!" -l de           # German
-python enhanced_password_checker.py -p "MyPassword123!" -l zh           # Chinese
-python enhanced_password_checker.py -p "MyPassword123!" -l ja           # Japanese
+# Multi-language
+python enhanced_password_checker.py -p "password" -l es
 ```
 
-#### Multi-Language Support
-
-The tool supports multiple languages for user interface text and feedback messages:
-
-**Supported Languages:**
-- **English (en)** - Default language
-- **Spanish (es)** - Español
-- **French (fr)** - Français
-- **German (de)** - Deutsch
-- **Chinese (zh)** - 中文
-- **Japanese (ja)** - 日本語
-
-**Usage Examples:**
+### GUI Interface
 ```bash
-# Analyze password with Spanish output
-python enhanced_password_checker.py -p "MiContraseña123!" --language es
-
-# Interactive mode in French
-python enhanced_password_checker.py -i -l fr
-
-# Batch analysis with German output
-python enhanced_password_checker.py -b passwords.txt --language de --export-csv results.csv
-
-# GUI automatically detects system language (English fallback)
 python password_checker_gui.py
 ```
 
-**CLI vs GUI Language Support:**
-- **CLI (enhanced_password_checker.py)**: Full multi-language support with `--language` flag
-- **GUI (password_checker_gui.py)**: Includes language selector dropdown for runtime switching
-
-**Translation Coverage:**
-- Strength levels (Very Weak, Weak, Medium, Strong, Very Strong)
-- Security recommendations and suggestions
-- Analysis results and technical metrics
-- Error messages and warnings
-- User interface elements (GUI only)
-
-**Fallback System:**
-- If a translation is not available, the tool falls back to English
-- Robust JSON-based translation system ensures consistent output
-- No errors occur if translation files are missing
-
-#### Batch Processing
-Create a text file with passwords (one per line):
-```
-passwords.txt:
-password123
-MySecretPassword!
-qwerty123
-StrongP@ssw0rd2023!
-```
-
-Then run:
+### Web Interface
 ```bash
-# Windows
-run.bat batch passwords.txt
-
-# macOS/Linux
-./run.sh batch passwords.txt
-
-# All platforms
-python run.py batch passwords.txt
+python app.py
 ```
+Then open http://localhost:5000
 
-#### Export Functionality
+## 🛡️ Security Features
 
-##### JSON Export (Single Password Analysis)
-Export detailed analysis results to JSON format for documentation or integration:
+- **Strength Scoring**: 0-100 point comprehensive scoring
+- **Pattern Detection**: Sequential chars, dictionary words, common passwords
+- **Entropy Calculation**: Mathematical randomness measurement
+- **Breach Detection**: Checks against known compromised passwords
+- **Attack Time Estimation**: Multiple attack scenario calculations
+
+## 📁 Project Structure
+
+- `enhanced_password_checker.py` - Core analysis engine
+- `password_checker_gui.py` - GUI interface
+- `app.py` - Web interface
+- `run.py` - Cross-platform launcher
+- `i18n_manager.py` - Language support
+- `hibp_checker.py` - Breach checking
+
+## 📋 Requirements
+
+- Python 3.6+
+- colorama
+- zxcvbn (optional but recommended)
+- requests (for HIBP checking)
+- tkinter (for GUI, usually included with Python)
+- flask (for web interface)
+
+## 🔧 Installation
 
 ```bash
-# Export single password analysis to JSON
-python enhanced_password_checker.py -p "MyPassword123!" --export-json "analysis.json"
-
-# Include actual password in export (SECURITY RISK)
-python enhanced_password_checker.py -p "MyPassword123!" --export-json "analysis.json" --include-passwords
+git clone <repository-url>
+cd Password-Strength-Checker-Tool
+pip install -r requirements.txt
+python setup.py  # Setup and test installation
 ```
 
-**JSON Output Structure:**
-```json
-{
-  "timestamp": "2025-06-13T23:04:17.032267",
-  "analysis_method": "zxcvbn + Enhanced Analysis",
-  "password_length": 16,
-  "character_composition": {
-    "lowercase_letters": true,
-    "uppercase_letters": true,
-    "numbers": true,
-    "special_characters": true,
-    "character_types_count": 4
-  },
-  "technical_metrics": {
-    "entropy_bits": 104.87,
-    "unique_characters": 14,
-    "uniqueness_ratio": 0.875
-  },
-  "strength_assessment": {
-    "score": 95,
-    "max_score": 100,
-    "strength_level": "Strong",
-    "percentage": 95
-  },
-  "security_issues": {
-    "issues_found": 2,
-    "issue_list": ["Contains sequential characters", "Contains dictionary word: 'password'"]
-  },
-  "improvement_suggestions": [],
-  "breach_check": {
-    "is_compromised": true,
-    "breach_count": 1998,
-    "risk_level": "Very High Risk",
-    "recommendation": "This password is extremely common in breaches..."
-  }
-}
-```
+## 🌍 Language Support
 
-##### CSV Export (Batch Analysis)
-Export batch analysis results to CSV format for spreadsheet analysis:
+Supported languages: English (en), Spanish (es), French (fr)
 
+Switch language with `-l` or `--language` parameter:
 ```bash
-# Batch analysis with CSV export
-python enhanced_password_checker.py -b passwords.txt --export-csv "batch_results.csv"
-
-# Include passwords in CSV (SECURITY RISK)
-python enhanced_password_checker.py -b passwords.txt --export-csv "batch_results.csv" --include-passwords
+python enhanced_password_checker.py -p "password" -l es
 ```
 
-**CSV Output Columns:**
-- `timestamp` - Analysis timestamp
-- `password_length` - Password length
-- `score` - Strength score (0-100)
-- `strength_level` - Strength category (Very Weak to Very Strong)
-- `lowercase_letters`, `uppercase_letters`, `numbers`, `special_characters` - Character type presence
-- `character_types_count` - Number of different character types
-- `entropy_bits` - Calculated entropy
-- `unique_characters` - Number of unique characters
-- `uniqueness_ratio` - Ratio of unique to total characters
-- `issues_found` - Number of security issues detected
-- `issue_list` - Semicolon-separated list of issues
-- `improvement_suggestions` - Semicolon-separated improvement suggestions
-- `breach_status` - "safe" or "compromised"
-- `breach_count` - Number of data breaches (if compromised)
-- `analysis_method` - Algorithm used for analysis
+## 📊 Export Options
 
-##### GUI Export
-The GUI version also supports export functionality:
-- **JSON Export**: Click "Export JSON" button after analyzing a password
-- **CSV Export**: Use "Export to CSV" button in batch analysis results window
-
-## 📊 Sample Output
-
-### Strong Password Example
-```
-======================================================================
-🔒 PASSWORD STRENGTH ANALYSIS 🔒
-======================================================================
-
-Analysis Method: zxcvbn + Enhanced Analysis
-Password Length: 16 characters
-
-Character Composition:
-  • Lowercase letters: ✓
-  • Uppercase letters: ✓
-  • Numbers: ✓
-  • Special characters: ✓
-
-Technical Metrics:
-  • Entropy: 95.2 bits
-  • Unique characters: 15/16
-  • zxcvbn Score: 4/4
-  • Guesses needed: 1,234,567,890,123
-
-Overall Assessment:
-  • Strength Score: 92/100
-  • Strength Level: Very Strong
-
-[██████████████████████████████████████████████████] 92%
-
-🕐 Estimated Crack Time:
-  • Online attack (throttled): centuries
-  • Online attack (unthrottled): 4 years
-  • Offline attack (slow): 4 hours
-  • Offline attack (fast): less than a second
-
-🛡️  Security Recommendations:
-  • Excellent: This is a very strong password
-  • Never reuse passwords across multiple accounts
-  • Update passwords regularly, especially for sensitive accounts
-  • Store passwords securely using a password manager
-```
-
-### Weak Password Example
-```
-======================================================================
-🔒 PASSWORD STRENGTH ANALYSIS 🔒
-======================================================================
-
-Analysis Method: zxcvbn + Enhanced Analysis
-Password Length: 8 characters
-
-Character Composition:
-  • Lowercase letters: ✓
-  • Uppercase letters: ✗
-  • Numbers: ✓
-  • Special characters: ✗
-
-⚠️  Security Issues Detected:
-  1. Password is in common passwords list
-  2. Contains dictionary word: 'password'
-
-🕐 Estimated Crack Time:
-  • Online attack (throttled): 2 minutes
-  • Online attack (unthrottled): less than a second
-  • Offline attack (slow): less than a second
-  • Offline attack (fast): less than a second
-
-Overall Assessment:
-  • Strength Score: 15/100
-  • Strength Level: Very Weak
-
-[███████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 15%
-
-💡 Improvement Suggestions:
-  1. This password is too common - choose a unique one
-  2. Add uppercase letters
-  3. Add special characters (!@#$%^&*)
-  4. Avoid using dictionary words
-  5. Use at least 12+ characters for better security
-
-🛡️  Security Recommendations:
-  • Critical: This password is easily crackable
-  • Use a password manager to generate strong passwords
-  • Enable two-factor authentication (2FA) wherever possible
-```
-
-## 🔧 Algorithm Details
-
-### Built-in Scoring Algorithm
-
-The tool uses a comprehensive 100-point scoring system:
-
-1. **Length Analysis (0-30 points)**
-   - 16+ characters: 30 points
-   - 12-15 characters: 25 points
-   - 8-11 characters: 20 points
-   - 6-7 characters: 15 points
-   - 4-5 characters: 10 points
-   - <4 characters: 5 points
-
-2. **Character Diversity (0-25 points)**
-   - 4 types (upper, lower, numbers, symbols): 25 points
-   - 3 types: 20 points
-   - 2 types: 15 points
-   - 1 type: 10 points
-
-3. **Entropy Assessment (0-25 points)**
-   - Based on mathematical entropy calculation
-   - Considers character set size and password length
-
-4. **Pattern Penalties (0-25 point deduction)**
-   - Common passwords: -7 points each
-   - Dictionary words: -7 points each
-   - Keyboard patterns: -7 points each
-   - Sequential characters: -7 points each
-   - Repeated characters: -7 points each
-
-5. **Uniqueness Bonus (0-20 points)**
-   - Based on ratio of unique characters to total length
-
-### zxcvbn Integration
-
-When available, the tool also uses the zxcvbn library, which provides:
-- Machine learning-based pattern recognition
-- Contextual password analysis
-- Advanced time-to-crack estimations
-- Specific feedback for common weaknesses
-
-## 📁 File Structure
-
-```
-PasswordSCT/
-├── password_checker.py          # Basic version with built-in algorithm
-├── enhanced_password_checker.py # Enhanced version with zxcvbn integration
-├── password_checker_gui.py      # GUI version with tkinter interface
-├── hibp_checker.py              # Have I Been Pwned API integration module
-├── run.py                      # Cross-platform Python launcher (all platforms)
-├── run.bat                     # Windows batch file launcher
-├── run.ps1                     # Windows PowerShell script
-├── run.sh                      # Unix shell script (macOS/Linux)
-├── Makefile                    # Build system for macOS/Linux
-├── setup.py                    # Setup and dependency installer
-├── demo.py                     # Interactive demo
-├── requirements.txt            # Python dependencies
-├── README.md                   # This file
-├── LICENSE                     # License file
-├── test_passwords.txt          # Sample passwords for testing
-├── common_passwords.txt        # Database of common passwords
-└── dictionary_words.txt        # Database of dictionary words
-```
-
-### Platform-Specific Launchers
-
-#### Windows
-- **`run.bat`** - Main Windows launcher (double-click friendly)
-- **`run.ps1`** - PowerShell version for advanced users
-
-#### macOS/Linux
-- **`run.sh`** - Native bash shell script
-- **`Makefile`** - Build system with common targets
-
-#### Cross-Platform
-- **`run.py`** - Python-based launcher that works on all platforms
-
-## 🎯 Use Cases
-
-### Personal Security
-- Check your existing passwords
-- Evaluate potential new passwords
-- Learn about password security best practices
-
-### Security Auditing
-- Batch analyze organizational passwords
-- Identify weak passwords in systems
-- Generate security reports
-
-### Educational
-- Learn about password entropy and security
-- Understand different attack methods
-- Explore cryptographic concepts
-
-## 🔒 Security Considerations
-
-### Data Privacy
-- **Passwords are NOT stored or transmitted**
-- Analysis is performed locally on your machine
-- No network connections are made during analysis
-
-### Best Practices
-1. **Use unique passwords** for each account
-2. **Enable 2FA** wherever possible
-3. **Use a password manager** to generate and store strong passwords
-4. **Regularly update passwords** for sensitive accounts
-5. **Avoid personal information** in passwords
-
-## 🤝 Contributing
-
-Contributions are welcome! Here are some ways you can help:
-
-### Ideas for Enhancement
-- Additional pattern detection algorithms
-- Integration with more password analysis libraries
-- GUI version of the tool
-- Password generation features
-- Integration with popular password managers
-
-### Code Contributions
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## 📝 License
-
-This project is open source and available under the MIT License.
-
-## 🙏 Acknowledgments
-
-- **zxcvbn library** by Dropbox for advanced password analysis
-- **colorama library** for cross-platform color support
-- Security research community for password analysis insights
-
-## 📞 Support
-
-If you encounter any issues or have questions:
-1. Check the troubleshooting section below
-2. Review the examples in this README
-3. Open an issue in the repository
-
-## 🔧 Troubleshooting
-
-### Common Issues
-
-#### "zxcvbn module not found"
+Export analysis results:
 ```bash
-pip install zxcvbn
+# JSON export
+python enhanced_password_checker.py -p "password" --export-json results.json
+
+# CSV export (batch mode)
+python enhanced_password_checker.py -b passwords.txt --export-csv results.csv
 ```
 
-#### "colorama module not found"
-```bash
-pip install colorama
-```
+## 🚨 Security Notes
 
-#### Colors not displaying properly on Windows
-- Ensure you're using a modern terminal (Windows Terminal, PowerShell, or Command Prompt)
-- The tool automatically handles color compatibility
+- Never store passwords in plain text
+- Use unique passwords for each account
+- Enable 2FA where possible
+- Regularly update passwords
+- Use a password manager
 
-#### Permission denied on Unix systems
-```bash
-chmod +x password_checker.py
-```
+## 📄 License
 
-### Performance Notes
-- Analysis is typically instant for single passwords
-- Batch processing depends on file size
-- zxcvbn may add slight overhead but provides better analysis
-
-## 🚀 Future Enhancements
-
-- [x] GUI interface using tkinter or PyQt ✅
-- [x] Password generation with customizable criteria ✅ (Available in GUI)
-- [x] Integration with Have I Been Pwned API ✅ (Checks password breach status)
-- [x] Export results to JSON/CSV format ✅ (Individual and batch analysis export)
-- [ ] Docker containerization
-- [ ] Web interface version
-- [ ] Multi-language support
-
----
-
-**Made with ❤️ for better password security**
+This project is licensed under the MIT License - see the LICENSE file for details.

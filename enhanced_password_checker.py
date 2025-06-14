@@ -1,12 +1,7 @@
 #!/usr/bin/env python3
 """
-Enhanced Password Strength Checker Tool with zxcvbn Integration
-
-A comprehensive command-line tool that analyzes password strength using multiple criteria
-including zxcvbn scoring, length, character types, dictionary words, entropy, and common password detection.
-
-Author: Password Security Tool
-Date: June 2025
+Enhanced Password Strength Checker Tool
+Comprehensive password analysis with multi-language support
 """
 
 import re
@@ -262,39 +257,37 @@ class PasswordStrengthChecker:
         """Check for common weak patterns in the password"""
         issues = []
         password_lower = password.lower()
-        
-        # Check for consecutive characters
+          # Check for consecutive characters
         if re.search(r'(.)\1{2,}', password):
-            issues.append("Contains repeated characters")
+            issues.append(_("Contains repeated characters"))
         
         # Check for sequential patterns
         sequences = ['123', '234', '345', '456', '567', '678', '789', '890',
                     'abc', 'bcd', 'cde', 'def', 'efg', 'fgh', 'ghi', 'hij',
                     'ijk', 'jkl', 'klm', 'lmn', 'mno', 'nop', 'opq', 'pqr',
-                    'qrs', 'rst', 'stu', 'tuv', 'uvw', 'vwx', 'wxy', 'xyz']
-        
+                    'qrs', 'rst', 'stu', 'tuv', 'uvw', 'vwx', 'wxy', 'xyz']        
         for seq in sequences:
             if seq in password_lower or seq[::-1] in password_lower:
-                issues.append("Contains sequential characters")
+                issues.append(_("Contains sequential characters"))
                 break
-        
-        # Check for keyboard patterns
+          # Check for keyboard patterns
         keyboard_patterns = ['qwerty', 'asdf', 'zxcv', '1234', 'qwertyuiop',
                            'asdfghjkl', 'zxcvbnm', '1qaz', '2wsx', '3edc',
                            'qwe', 'asd', 'zxc', 'wer', 'sdf', 'xcv']
         
         for pattern in keyboard_patterns:
             if pattern in password_lower:
-                issues.append("Contains keyboard patterns")
+                issues.append(_("Contains keyboard patterns"))
                 break
         
         # Check for common words
         for word in self.dictionary_words:
             if len(word) > 3 and word in password_lower:
-                issues.append(f"Contains dictionary word: '{word}'")
-          # Check against common passwords
+                issues.append(_("Contains dictionary word: '{}'").format(word))
+        
+        # Check against common passwords
         if password_lower in self.common_passwords:
-            issues.append("Password is in common passwords list")
+            issues.append(_("Password is in common passwords list"))
         
         return issues
     
@@ -423,13 +416,12 @@ class PasswordStrengthChecker:
         final_score = min(100, base_score + length_bonus + entropy_bonus)
           # Determine strength label
         strength_mapping = {0: _("Very Weak"), 1: _("Weak"), 2: _("Medium"), 3: _("Strong"), 4: _("Very Strong")}
-        strength = strength_mapping.get(zxcvbn_score, _("Very Weak"))
-          # Generate suggestions
+        strength = strength_mapping.get(zxcvbn_score, _("Very Weak"))          # Generate suggestions
         suggestions = []
         if result['feedback']['warning']:
-            suggestions.append(result['feedback']['warning'])
+            suggestions.append(_(result['feedback']['warning']))
         for suggestion in result['feedback']['suggestions']:
-            suggestions.append(suggestion)
+            suggestions.append(_(suggestion))
         
         # Add our own suggestions
         char_types = self.check_character_types(password)
@@ -895,10 +887,8 @@ Features:
       # Disable HIBP checking if requested
     if args.no_hibp:
         checker.hibp_checker = None
-    
-    # Display header
+      # Display header
     print(f"\n{Fore.CYAN + Style.BRIGHT}[*] {_('ENHANCED PASSWORD STRENGTH CHECKER')} [*]{Style.RESET_ALL}")
-    print(f"{Fore.CYAN}{_('Advanced password security analysis with comprehensive checks')}{Style.RESET_ALL}")
     
     try:
         if args.batch:
